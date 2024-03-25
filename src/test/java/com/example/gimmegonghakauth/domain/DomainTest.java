@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.example.gimmegonghakauth.constant.AbeekTypeConst;
 import com.example.gimmegonghakauth.dao.GonghakRepository;
 import com.example.gimmegonghakauth.dao.MajorsDao;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,14 +25,21 @@ public class DomainTest {
         .id(1L)
         .major("건설환경공학과").build();
 
+    @Transactional
     @BeforeEach
     void beforeEachInputTestData(){
+
+        MajorsDomain majorsDomain = MajorsDomain.builder()
+            .id(1L)
+            .major("건설환경공학과").build();
         majorsDao.save(majorsDomain);
 //        gonghakRepository.save(majorsDomain);
     }
 
+    @Transactional
     @Test
     void normalSaveTest(){
+
         //given
         AbeekDomain normalAbeekDomain = abeekDomain(majorsDomain);
 

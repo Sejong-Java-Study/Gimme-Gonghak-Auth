@@ -1,0 +1,31 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+  <form id="certificationForm" onsubmit="clearCertification(); return false;">
+    <label for="email">이메일:</label><br>
+    <input type="email" id="email" name="email" required><br><br>
+    <button type="submit" class="btn btn-primary">인증 초기화</button>
+  </form>
+  <script>
+    function clearCertification() {
+      var email = document.getElementById("email").value;
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/user/certification/clear", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            alert(xhr.responseText);
+          } else {
+            alert("초기화에 실패했습니다.");
+          }
+        }
+      };
+
+      var data = JSON.stringify({"email": email});
+      xhr.send(data);
+    }
+  </script>
+</div>
+</html>

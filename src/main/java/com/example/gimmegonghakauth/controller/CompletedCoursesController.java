@@ -3,6 +3,8 @@ package com.example.gimmegonghakauth.controller;
 import com.example.gimmegonghakauth.domain.CompletedCoursesDomain;
 import com.example.gimmegonghakauth.exception.FileException;
 import com.example.gimmegonghakauth.service.CompletedCoursesService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +30,10 @@ public class CompletedCoursesController {
     }
 
     @PostMapping("/excel/read")
-    public String readExcel(@RequestParam("file") MultipartFile file, Model model) {
+    public String readExcel(@RequestParam("file") MultipartFile file, Model model, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         try {
-            List<CompletedCoursesDomain> dataList = excelService.extractExcelFile(file);
+            List<CompletedCoursesDomain> dataList = excelService.extractExcelFile(file,userDetails);
             model.addAttribute("datas", dataList);
             return "excelList";
         } catch (IOException | FileException e) {

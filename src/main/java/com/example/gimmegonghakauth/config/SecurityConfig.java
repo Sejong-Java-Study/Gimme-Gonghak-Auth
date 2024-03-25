@@ -30,7 +30,10 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/") //로그아웃시 메인페이지로 되돌아감
                 .invalidateHttpSession(true)) //로그아웃 시 생성된 사용자 세선 삭제
             .csrf().csrfTokenRepository((CookieCsrfTokenRepository.withHttpOnlyFalse()))
-
+            .ignoringRequestMatchers("/user/send-verification-email") // "/user/send-verification-email" 경로에 대한 CSRF 보안 비활성화
+            .ignoringRequestMatchers("/user/verify-code") // "/user/verify-code" 경로에 대한 CSRF 보안 비활성화
+            .ignoringRequestMatchers("/user/certification/clear")
+            .ignoringRequestMatchers("/user/verify-status")
         ;
         return http.build();
     }

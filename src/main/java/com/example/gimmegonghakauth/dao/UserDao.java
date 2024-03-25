@@ -10,4 +10,9 @@ import org.springframework.stereotype.Repository;
 public interface UserDao extends JpaRepository<UserDomain,Long> {
 
     Optional<UserDomain> findByStudentId(Long studentId);
+
+    boolean existsByStudentId(Long studentId);
+
+    boolean existsByEmail(String email);
+
 }

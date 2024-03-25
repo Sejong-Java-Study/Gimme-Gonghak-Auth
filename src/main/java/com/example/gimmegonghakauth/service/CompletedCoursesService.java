@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,16 +41,16 @@ public class CompletedCoursesService {
 
     final int FIRST_ROW = 4;
 
-    public List<CompletedCoursesDomain> extractExcelFile(MultipartFile file)
+    public List<CompletedCoursesDomain> extractExcelFile(MultipartFile file, UserDetails userDetails)
         throws IOException { //엑셀 데이터 추출
         List<CompletedCoursesDomain> dataList = new ArrayList<>();
         String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 
         validateExcelFile(file, extension); //업로드 파일 검증
+        Long studentId = Long.parseLong(userDetails.getUsername());
+        UserDomain userDomain = userDao.findByStudentId(studentId).get();
+        // 로그인한 유저
 
-        UserDomain userDomain = userDao.findByStudentId(19011684L).get();
-        // 원래는 로그인한 유저의 학번 데이터를 넣어줘야하지만 로그인 구현 전이라 임의로 학번을 넣어주었음.
-        // 현재 학번이 같은 유저(중복가입) 있을시 오류가 남 해결필요
         checkUserDomain(userDomain);
 
         Workbook workbook = creatWorkbook(file, extension);

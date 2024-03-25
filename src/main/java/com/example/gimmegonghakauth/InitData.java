@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class InitData {
     private final CoursesDao coursesDao;
     private final GonghakCorusesDao gonghakCorusesDao;
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
@@ -43,7 +45,12 @@ public class InitData {
         MajorsDomain testMajorsDomain = MajorsDomain.builder()
             .id(1L)
             .major("컴퓨터공학과").build();
+        log.info("----set table----");
+        MajorsDomain testMajorsDomain2 = MajorsDomain.builder()
+            .id(2L)
+            .major("전자정보통신공학과").build();
         majorsDao.save(testMajorsDomain);
+        majorsDao.save(testMajorsDomain2);
 
         //AbeekDomain
         AbeekDomainBuilder abeek1 = AbeekDomain.builder()
@@ -87,10 +94,18 @@ public class InitData {
         UserDomain userDomain = UserDomain.builder()
             .email("testEmail")
             .name("홍지섭")
-            .password("qwer")
+            .password(passwordEncoder.encode("qwer"))
             .studentId(19011706L)
             .majorsDomain(testMajorsDomain).build();
         userDao.save(userDomain);
+
+        UserDomain userDomain2 = UserDomain.builder()
+            .email("testEmail")
+            .name("testUser")
+            .password(passwordEncoder.encode("1234"))
+            .studentId(12345678L)
+            .majorsDomain(testMajorsDomain).build();
+        userDao.save(userDomain2);
 
         //Courses
         CoursesDomain testCourse1 = CoursesDomain.builder()

@@ -12,9 +12,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 @Entity
-@Data
+@Getter
 public class UserDomain {
 
     @Id
@@ -45,6 +46,10 @@ public class UserDomain {
         this.email = email;
         this.majorsDomain = majorsDomain;
         this.name = name;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 
     public UserDomain() {

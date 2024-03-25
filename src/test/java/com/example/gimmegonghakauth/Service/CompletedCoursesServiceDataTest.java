@@ -20,17 +20,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@TestPropertySource("classpath:application-test.properties") //test용 DB
+@SpringBootTest
+@Transactional
 @Nested
 @DisplayName("DB 테스트(기이수과목)")
 @Import(CompletedCoursesService.class)
@@ -67,14 +68,10 @@ public class CompletedCoursesServiceDataTest {
 
     @BeforeEach
     public void setUser() {
-        //학과 Entity save
-        MajorsDomain majorsDomain = MajorsDomain.builder().major("데이터사이언스학과").build();
-        majorsDao.save(majorsDomain);
-
         //유저 Entity save
         UserDomain user = UserDomain.builder().studentId(19011684L)
             .password("1234").email("test@gmail.com")
-            .majorsDomain(majorsDao.findByMajor("데이터사이언스학과"))
+            .majorsDomain(majorsDao.findByMajor("컴퓨터공학과"))
             .name("이희수")
             .build();
         userDao.save(user);

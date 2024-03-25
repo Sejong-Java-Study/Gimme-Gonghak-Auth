@@ -1,11 +1,15 @@
 package com.example.gimmegonghakauth.controller;
 
 import com.example.gimmegonghakauth.dao.MajorsDao;
+import com.example.gimmegonghakauth.dao.UserDao;
+import com.example.gimmegonghakauth.domain.UserDomain;
+import com.example.gimmegonghakauth.dto.ChangePasswordDto;
 import com.example.gimmegonghakauth.dto.UserJoinDto;
 import com.example.gimmegonghakauth.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,6 +27,8 @@ public class UserController {
 
     private final UserService userService;
     private final MajorsDao majorsDao;
+    private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/signup")
     public String signup(UserJoinDto userJoinDto) {
@@ -67,5 +73,33 @@ public class UserController {
             model.addAttribute("withdrawalError", "회원 탈퇴에 실패했습니다. 비밀번호를 확인해 주세요.");
         }
         return "withdrawal";
+    }
+
+    @GetMapping("change/password")
+    public String changePassword(ChangePasswordDto changePasswordDto) {
+        return "changePassword";
+    }
+
+    @PostMapping("change/password")
+    public String changePassword(@Valid ChangePasswordDto changePasswordDto,
+        BindingResult bindingResult, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Long studentId = Long.parseLong(userDetails.getUsername());
+        UserDomain user = userDao.findByStudentId(studentId).get();
+        if (bindingResult.hasErrors()) {
+            return "changePassword";
+        }
+        if (!userService.changePasswordValidation(changePasswordDto, bindingResult, user)) {
+            return "changePassword"; //비밀번호 변경 검증
+        }
+        user.updatePassword(passwordEncoder.encode(changePasswordDto.getNewPassword1()));
+        userDao.save(user);
+        //비밀번호 변경
+        return "redirect:/user/login"; //성공적인 비밀번호 변경시 로그인 페이지로 이동
+    }
+
+    @GetMapping("/certification/clear")
+    public String clearCertification() {
+        return "resetVerify";
     }
 }

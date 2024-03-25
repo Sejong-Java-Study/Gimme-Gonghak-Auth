@@ -24,12 +24,6 @@
     </div>
 
     <div class="mb-3">
-      <label for="email" class="form-label">이메일</label>
-      <input type="text" id="email" th:field="*{email}" class="form-control" required>
-      <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
       <label for="major" class="form-label">학과</label>
       <select id="major" th:field="*{major}" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
@@ -46,8 +40,97 @@
     </div>
 
     <div class="mb-3">
-      <button type="submit" class="btn btn-primary">가입하기</button>
+      <label for="email" class="form-label">이메일</label>
+      <input type="text" id="email" th:field="*{email}" class="form-control" required>
+      <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
     </div>
+
+    <div class="mb-3">
+      <button type="button" onclick="sendVerificationEmail();" class="btn btn-success">인증번호 발송
+      </button>
+    </div>
+
+    <div class="mb-3" id="verificationCodeSection1" style="display:none;">
+      <label for="verifyCode" class="form-label">인증번호 입력</label>
+      <input type="number" id="verifyCode" th:field="*{verifyCode}" class="form-control" required>
+      <span th:if="${#fields.hasErrors('verifyCode')}" th:errors="*{verifyCode}"
+            class="text-danger"></span>
+    </div>
+
+    <div class="mb-3" id="verificationCodeSection2" style="display:none;">
+      <button type="button" onclick="verifyEmailCode();" class="btn btn-primary">인증번호 확인</button>
+    </div>
+
+    <div class="mb-3">
+      <button type="button" class="btn btn-primary" onclick="verifyStatus();">가입하기</button>
+    </div>
+    <script type="text/javascript">
+      function sendVerificationEmail() {
+        var email = document.getElementById("email").value;
+        var xhr = new XMLHttpRequest();
+        if (!email) {
+          alert("세종대학교 이메일을 입력하세요.");
+          return;
+        }
+        xhr.open("POST", "/user/send-verification-email", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.responseText.includes("인증메일 발송에 성공했습니다.")) {
+              document.getElementById("verificationCodeSection1").style.display = "block";
+              document.getElementById("verificationCodeSection2").style.display = "block";
+            }
+            alert(xhr.responseText);
+          }
+        };
+        var data = JSON.stringify({"email": email});
+        xhr.send(data);
+      }
+
+      function verifyEmailCode() {
+        var code = document.getElementById("verifyCode").value;
+        var email = document.getElementById("email").value;
+        if (!code) {
+          alert("인증번호를 입력하세요.");
+          return;
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/user/verify-code", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.responseText.includes("인증번호 확인에 성공했습니다.")) {
+              document.getElementById("verificationCodeSection1").getElementsByTagName(
+                  "input")[0].disabled = true;
+              document.getElementById("verificationCodeSection2").getElementsByTagName(
+                  "button")[0].disabled = true;
+            }
+            alert(xhr.responseText);
+          }
+        };
+        var data = JSON.stringify({"email": email, "verifyCode": code});
+        xhr.send(data);
+      }
+
+      function verifyStatus() {
+        var email = document.getElementById("email").value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/user/verify-status", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.responseText.includes("인증된 이메일입니다.")) {
+              document.querySelector('form').submit();
+            }
+            else{
+              alert(xhr.responseText);
+            }
+          }
+        };
+        var data = JSON.stringify({"email": email});
+        xhr.send(data);
+      }
+    </script>
   </form>
 </div>
 </html>

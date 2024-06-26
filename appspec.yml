@@ -1,5 +1,5 @@
 version: 0.0
-os: Linux
+os: linux
 
 files: # EC2가 배포에 필요한 파일을 가져오는 경로 지정 (CodeDeploy-Agent가 수행함)
   - source: / # S3에 있는 전체파일

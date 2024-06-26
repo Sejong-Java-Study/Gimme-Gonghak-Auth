@@ -12,10 +12,6 @@ env:
   AWS_CODE_DEPLOY_NAME: gonghak98-server # CodeDeploy 애플리케이션 이름
   AWS_CODE_DEPLOY_GROUP: Production # CodeDeploy 배포 그룹 이름
 
-  ECR_REGISTRY: ${{ secrets.ECR_REPOSITORY_ORIGIN }} # login-ecr 스텝의 출력 값(ECR 저장소 이름)
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
-  IMAGE_TAG: latest
-
 jobs: # 해당 워크플로우에서 어떤 일이 수행되어야 하는지 정의 (like 조건문의 본문)
   test_and_build:
     name: 스프링부트 프로젝트 테스트 자동화
@@ -68,51 +64,84 @@ jobs: # 해당 워크플로우에서 어떤 일이 수행되어야 하는지 정
           name: build-artifact
           path: build/libs/*.jar
 
-  deploy:
-    name: 스프링부트 프로젝트 배포
+  build_and_push_image:
+    name: 도커 이미지 빌드 및 푸시
     # 가장 최신 버전의 우분투를 러너(Github Actions 실행 환경)로 설정
     runs-on: ubuntu-latest # 상세 작업에 필수적으로 들어가야 하는 항목 : 어느 환경에서 실행되어야 하는지 정의
-    needs: test # test 작업이 끝난 후에 실행될 수 있도록 설정
+    needs: test_and_build # test_and_build 작업이 끝난 후에 실행될 수 있도록 설정
     
     steps:
       - name: 깃허브 리포지토리 파일 불러오기
         uses: actions/checkout@v4 # 현재 리포지토리로 체크아웃
 
-      - name: Github Actions가 AWS 리소스(ECR, S3, CodeDeploy)에 접근할 수 있도록 인증정보 설정
+      - name: Github Actions가 AWS 리소스(ECR)에 접근할 수 있도록 인증정보 설정, 이 때 리전은 us-east-1
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION_NAME }}
+          aws-region: us-east-1
 
       - name: 멀티 플랫폼 빌드와 캐시 활용을 할 수 있는 도커 빌드X 설치
         uses: docker/setup-buildx-action@v3
 
       - name: AWS ECR에 로그인
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
 
-      - name: test 작업에서 업로드한 빌드 산출물 다운로드
+      - name: build/libs 폴더 생성
+        run: |
+          mkdir -p ./build/libs
+
+      - name: test_and_build 작업에서 업로드한 빌드 산출물 다운로드
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
-          path: ./build
+          path: ./build/libs/
+
+      - name: 빌드 산출물 확인
+        run: |
+          ls -l ./build/libs
 
       - name: 이미지 빌드 후, ECR에 푸쉬
+        env:
+          REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: latest
         run: |
-          docker buildx build --platform=linux/amd64 -f ./docker/Dockerfile_Was_ECR -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY}}:${{ env.IMAGE_TAG }} .
-          docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker buildx build --platform=linux/amd64 \
+            -f ./docker/Dockerfile_Was_ECR \
+            -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG \
+            --push .
+
+  deploy:
+    name: 스프링부트 프로젝트 배포
+    runs-on: ubuntu-latest
+    needs: build_and_push_image
+
+    steps:
+      - name: 깃허브 리포지토리 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: Github Actions가 AWS 리소스(S3, CodeDeploy)에 접근할 수 있도록 인증정보 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION_NAME }}
 
       - name: 배포 스크립트 폴더 및 파일 추가
         run: |
-          mkdir scripts
+          mkdir -p scripts
           echo "${{ secrets.START_SERVER_SH }}" >> ./scripts/start-server.sh
 
       - name: 배포에 필요한 파일 압축하기
-        run: tar -czvf ${{ GITHUB.SHA }}.tar.gz appspec.yml scripts
+        run: tar -czvf ${{ github.sha }}.tar.gz appspec.yml scripts
 
       - name: S3로 배포 압축파일 업로드
         run: |
-          aws s3 cp ./${{ GITHUB.SHA }}.tar.gz s3://${{ env.AWS_S3_BUCKET_NAME }}/${{ GITHUB.SHA }}.tar.gz
+          aws s3 cp ./${{ github.sha }}.tar.gz s3://${{ env.AWS_S3_BUCKET_NAME }}/${{ github.sha }}.tar.gz
 
       - name: CodeDeploy를 활용해 EC2에 프로젝트 코드 배포
         run: |

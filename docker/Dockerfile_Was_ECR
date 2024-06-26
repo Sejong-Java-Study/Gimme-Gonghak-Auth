@@ -2,7 +2,7 @@
 FROM amazoncorretto:17-alpine3.19
 
 # Github Actions에서 다운로드한 빌드 산출물을 빌드용 컨테이너에 복사
-COPY build/libs/*.jar app.jar
+COPY ./build/libs/*.jar app.jar
 
 # 어플리케이션 실행 (/ 루트(절대 경로)에 있는 app.jar 파일을 실행)
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

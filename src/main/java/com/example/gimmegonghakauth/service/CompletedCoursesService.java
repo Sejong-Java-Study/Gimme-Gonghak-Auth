@@ -80,7 +80,7 @@ public class CompletedCoursesService {
             String semester = dataFormatter.formatCellValue(row.getCell(2)); //학기
 
             String courseIdAsString = dataFormatter.formatCellValue(row.getCell(3));
-            Long courseId = Long.parseLong(courseIdAsString); //학수번호
+            Long courseId = courseIdToLong(courseIdAsString); //학수번호
 
             CoursesDomain coursesDomain = coursesDao.findByCourseId(
                 courseId);// 학수번호를 기반으로 Courses 테이블 검색
@@ -144,6 +144,13 @@ public class CompletedCoursesService {
             // CompletedCourses 테이블에서 해당하는 행들을 삭제
             completedCoursesDao.deleteAllInBatch(coursesList);
         }
+    }
+
+    private Long courseIdToLong(String courseIdAsString) {
+        if (courseIdAsString.charAt(0) == 'P') {
+            courseIdAsString = '0' + courseIdAsString.substring(1);
+        }
+        return Long.parseLong(courseIdAsString);
     }
 
 

@@ -75,7 +75,7 @@ public class CompletedCoursesService {
             Row row = worksheet.getRow(i);
 
             String yearAsString = dataFormatter.formatCellValue(row.getCell(1));
-            Integer year = Integer.parseInt(yearAsString);  //년도
+            int year = Integer.parseInt(yearAsString)%100;  //년도
 
             String semester = dataFormatter.formatCellValue(row.getCell(2)); //학기
 

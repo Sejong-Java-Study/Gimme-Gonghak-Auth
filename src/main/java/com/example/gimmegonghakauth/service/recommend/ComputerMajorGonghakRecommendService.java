@@ -32,25 +32,16 @@ public class ComputerMajorGonghakRecommendService implements GonghakRecommendSer
         Optional<GonghakStandardDto> standard = gonghakRepository.findStandard(
             userDomain.getStudentId(), userDomain.getMajorsDomain());
 
-        // 수강하지 않은 과목 중 "전공기초" 과목을 반환한다.
-        List<IncompletedCoursesDto> majorBasic = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-            CourseCategoryConst.전공기초, userDomain.getStudentId(), userDomain.getMajorsDomain()
-        );
-
-        // 수강하지 않은 과목 중 "전공주제" 과목을 반환한다.
-        List<IncompletedCoursesDto> majorSubject = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-            CourseCategoryConst.전공주제, userDomain.getStudentId(), userDomain.getMajorsDomain()
-        );
-
-        // 수강하지 않은 과목 중 "전문교양" 과목을 반환한다.
+        // 수강하지 않은 과목 중 "전문 교양" 과목을 반환한다.
         List<IncompletedCoursesDto> professionalNonMajor = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
             CourseCategoryConst.전문교양, userDomain.getStudentId(), userDomain.getMajorsDomain()
         );
 
-        // 수강하지 않은 과목 중 "교양" 과목을 반환한다.
-        List<IncompletedCoursesDto> nonMajor = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-            CourseCategoryConst.교양, userDomain.getStudentId(), userDomain.getMajorsDomain()
+        // 수강하지 않은 과목 중 "전공" 과목을 반환한다.
+        List<IncompletedCoursesDto> major = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
+            CourseCategoryConst.전공, userDomain.getStudentId(), userDomain.getMajorsDomain()
         );
+
         // 수강하지 않은 과목 중 "BSM" 과목을 반환한다.
         List<IncompletedCoursesDto> bsm = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
             CourseCategoryConst.BSM, userDomain.getStudentId(), userDomain.getMajorsDomain()
@@ -67,24 +58,21 @@ public class ComputerMajorGonghakRecommendService implements GonghakRecommendSer
                             abeekRecommend.addAll(bsm);
                             break;
                         case MAJOR:
-                            abeekRecommend.addAll(majorBasic);
-                            abeekRecommend.addAll(majorSubject);
+                            abeekRecommend.addAll(major);
                             break;
                         case DESIGN:
-                            addOnlyDesignCreditOverZero(majorBasic, abeekRecommend);
-                            addOnlyDesignCreditOverZero(majorSubject, abeekRecommend);
+                            addOnlyDesignCreditOverZero(major, abeekRecommend);
                             break;
                         case PROFESSIONAL_NON_MAJOR:
                             abeekRecommend.addAll(professionalNonMajor);
                             break;
                         case NON_MAJOR:
-                            abeekRecommend.addAll(nonMajor);
+                            abeekRecommend.addAll(professionalNonMajor);
                             break;
                         case MINIMUM_CERTI:
                             abeekRecommend.addAll(bsm);
-                            abeekRecommend.addAll(majorBasic);
-                            abeekRecommend.addAll(majorSubject);
-                            abeekRecommend.addAll(nonMajor);
+                            abeekRecommend.addAll(professionalNonMajor);
+                            abeekRecommend.addAll(major);
                             break;
                     }
                     coursesByAbeekTypeWithoutCompleteCourses.put(abeekType, abeekRecommend);

@@ -95,7 +95,7 @@ public class GonghakCalculateService {
         Map<AbeekTypeConst, Double> userAbeekCredit) {
         userCoursesByMajorByGonghakCoursesWithCompletedCourses.forEach(gonghakCoursesByMajorDto -> {
             switch (gonghakCoursesByMajorDto.getCourseCategory()) {
-                case 전선, 전공주제, 전필, 전공:
+                case 전공:
                     stackCredit(AbeekTypeConst.MAJOR, gonghakCoursesByMajorDto, userAbeekCredit);
                     break;
                 case 전문교양:

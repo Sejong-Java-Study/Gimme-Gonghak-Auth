@@ -31,14 +31,9 @@ public class ElecInfoMajorGonghakRecommendService implements GonghakRecommendSer
         Optional<GonghakStandardDto> standard = gonghakRepository.findStandard(
             userDomain.getStudentId(), userDomain.getMajorsDomain());
 
-        // 수강하지 않은 과목 중 "전선" 과목을 반환한다.
-        List<IncompletedCoursesDto> majorSelective = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-            CourseCategoryConst.전선, userDomain.getStudentId(), userDomain.getMajorsDomain()
-        );
-
-        // 수강하지 않은 과목 중 "전필" 과목을 반환한다.
-        List<IncompletedCoursesDto> majorRequired = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-            CourseCategoryConst.전필, userDomain.getStudentId(), userDomain.getMajorsDomain()
+        // 수강하지 않은 과목 중 "전문 교양" 과목을 반환한다.
+        List<IncompletedCoursesDto> professionalNonMajor = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
+            CourseCategoryConst.전문교양, userDomain.getStudentId(), userDomain.getMajorsDomain()
         );
 
         // 수강하지 않은 과목 중 "전공" 과목을 반환한다.
@@ -46,17 +41,7 @@ public class ElecInfoMajorGonghakRecommendService implements GonghakRecommendSer
             CourseCategoryConst.전공, userDomain.getStudentId(), userDomain.getMajorsDomain()
         );
 
-        // 수강하지 않은 과목 중 "전문교양" 과목을 반환한다.
-        List<IncompletedCoursesDto> professionalNonMajor = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-            CourseCategoryConst.전문교양, userDomain.getStudentId(), userDomain.getMajorsDomain()
-        );
-
-        // 수강하지 않은 과목 중 "교양" 과목을 반환한다.
-        List<IncompletedCoursesDto> nonMajor = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-            CourseCategoryConst.교양, userDomain.getStudentId(), userDomain.getMajorsDomain()
-        );
-
-        // // 수강하지 않은 과목 중 "MSC" 과목을 반환한다.
+        // 수강하지 않은 과목 중 "MSC" 과목을 반환한다.
         List<IncompletedCoursesDto> msc = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
             CourseCategoryConst.MSC, userDomain.getStudentId(), userDomain.getMajorsDomain()
         );
@@ -73,25 +58,20 @@ public class ElecInfoMajorGonghakRecommendService implements GonghakRecommendSer
                             break;
                         case MAJOR:
                             abeekRecommend.addAll(major);
-                            abeekRecommend.addAll(majorRequired);
-                            abeekRecommend.addAll(majorSelective);
                             break;
                         case DESIGN:
                             addOnlyDesignCreditOverZero(major, abeekRecommend);
-                            addOnlyDesignCreditOverZero(majorRequired, abeekRecommend);
-                            addOnlyDesignCreditOverZero(majorSelective, abeekRecommend);
                             break;
                         case PROFESSIONAL_NON_MAJOR:
                             abeekRecommend.addAll(professionalNonMajor);
                             break;
                         case NON_MAJOR:
-                            abeekRecommend.addAll(nonMajor);
+                            abeekRecommend.addAll(professionalNonMajor);
                             break;
                         case MINIMUM_CERTI:
                             abeekRecommend.addAll(msc);
-                            abeekRecommend.addAll(majorRequired);
-                            abeekRecommend.addAll(majorSelective);
-                            abeekRecommend.addAll(nonMajor);
+                            abeekRecommend.addAll(major);
+                            abeekRecommend.addAll(professionalNonMajor);
                             break;
                     }
                     coursesByAbeekTypeWithoutCompleteCourses.put(abeekType, abeekRecommend);

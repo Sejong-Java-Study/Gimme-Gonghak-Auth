@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class GonghakDao implements GonghakRepository{
 
+    private static final int DIVIDER = 1000000;
     private final AbeekDao abeekDao;
     private final GonghakCorusesDao gonghakCorusesDao;
 
@@ -34,7 +35,7 @@ public class GonghakDao implements GonghakRepository{
     // 학번 입학년도를 기준으로 해당 년도의 abeekType(영역별 구분),minCredit(영역별 인증학점) 불러온다.
     @Override
     public Optional<GonghakStandardDto> findStandard(Long studentId, MajorsDomain majorsDomain) {
-        int year = (int) (studentId/1000000);
+        int year = (int) (studentId/DIVIDER);
 //        log.info("year = {}",year);
         return changeToGonghakStandardDto(majorsDomain, year);
     }
@@ -51,7 +52,7 @@ public class GonghakDao implements GonghakRepository{
     public List<IncompletedCoursesDto> findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
         CourseCategoryConst courseCategory, Long studentId, MajorsDomain majorsDomain) {
         return gonghakCorusesDao.findUserCoursesByMajorAndCourseCategoryAndGonghakCoursesWithoutCompleteCourses(
-            courseCategory, studentId, majorsDomain);
+            courseCategory, studentId, majorsDomain, studentId/DIVIDER);
     }
 
     private Optional<GonghakStandardDto> changeToGonghakStandardDto(MajorsDomain majorsDomain, int year) {

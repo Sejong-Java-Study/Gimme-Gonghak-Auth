@@ -28,7 +28,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
-//출처: https://0soo.tistory.com/194?category=576925
 class GonghakRepositoryTest {
 
     private static final Long COM_TEST_STUDENT_ID = 19011706L;
@@ -41,6 +40,7 @@ class GonghakRepositoryTest {
     private MajorsDomain COM_TEST_MAJORDOMAIN;
 
     private MajorsDomain WRONG_TEST_MAJORDOMAIN;
+
 
     @BeforeAll
     void setInit(){
@@ -55,7 +55,7 @@ class GonghakRepositoryTest {
     @DisplayName("dao 메서드 상태 출력")
     void displayDaoMethod(){
         List<IncompletedCoursesDto> withoutCompleteCourses = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-                CourseCategoryConst.전선, COM_TEST_STUDENT_ID, COM_TEST_MAJORDOMAIN
+                CourseCategoryConst.전공, COM_TEST_STUDENT_ID, COM_TEST_MAJORDOMAIN
         );
 
         withoutCompleteCourses.forEach(
@@ -113,7 +113,7 @@ class GonghakRepositoryTest {
 
         assertThat(passCategories).containsAll(List.of("인필","인선"));
 
-        assertThat(courseCategories).containsAnyElementsOf(List.of(CourseCategoryConst.전문교양,CourseCategoryConst.전공주제,CourseCategoryConst.BSM));
+        assertThat(courseCategories).containsAnyElementsOf(List.of(CourseCategoryConst.전문교양,CourseCategoryConst.전공,CourseCategoryConst.BSM));
     }
 
     @Test
@@ -123,14 +123,14 @@ class GonghakRepositoryTest {
         Arrays.stream(CourseCategoryConst.values()).forEach(
                 courseCategory -> {
                     List<IncompletedCoursesDto> testCourses = gonghakRepository.findUserCoursesByMajorByGonghakCoursesWithoutCompleteCourses(
-                            CourseCategoryConst.전필,
+                            CourseCategoryConst.전공,
                             COM_TEST_STUDENT_ID,
                             COM_TEST_MAJORDOMAIN
                     );
 
                     testCourses.forEach(
                             incompletedCoursesDto -> {
-                                assertThat(incompletedCoursesDto.getCourseCategory()).isEqualTo(CourseCategoryConst.전필);
+                                assertThat(incompletedCoursesDto.getCourseCategory()).isEqualTo(CourseCategoryConst.전공);
                             }
                     );
                 }

@@ -171,22 +171,22 @@ public class InitData {
 
         //CompletedCourses
         CompletedCoursesDomain coursesDomain1 = CompletedCoursesDomain.builder()
-            .year(2019)
+            .year(19)
             .semester("1학기")
             .coursesDomain(testCourse1)
             .userDomain(userDomain).build();
         CompletedCoursesDomain coursesDomain2 = CompletedCoursesDomain.builder()
-            .year(2019)
+            .year(19)
             .semester("1학기")
             .coursesDomain(testCourse2)
             .userDomain(userDomain).build();
         CompletedCoursesDomain coursesDomain3 = CompletedCoursesDomain.builder()
-            .year(2019)
+            .year(19)
             .semester("1학기")
             .coursesDomain(testCourse3)
             .userDomain(userDomain).build();
         CompletedCoursesDomain coursesDomain4 = CompletedCoursesDomain.builder()
-            .year(2019)
+            .year(19)
             .semester("1학기")
             .coursesDomain(testCourse4)
             .userDomain(userDomain).build();
@@ -214,7 +214,7 @@ public class InitData {
             .year(19).build();
 
         GonghakCoursesDomain gonghakCourses3 = GonghakCoursesDomain.builder()
-            .courseCategory(CourseCategoryConst.전선)
+            .courseCategory(CourseCategoryConst.전공)
             .majorsDomain(computerMajor)
             .designCredit(1.0)
             .coursesDomain(testCourse3)
@@ -222,7 +222,7 @@ public class InitData {
             .year(19).build();
 
         GonghakCoursesDomain gonghakCourses4 = GonghakCoursesDomain.builder()
-            .courseCategory(CourseCategoryConst.전필)
+            .courseCategory(CourseCategoryConst.전공)
             .majorsDomain(computerMajor)
             .designCredit(1.0)
             .coursesDomain(testCourse5)
